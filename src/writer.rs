@@ -6,18 +6,29 @@ use std::fs::File;
 
 use thiserror::Error;
 
+/// Errors related to the encoding of wav files
 #[derive(Error, Debug)]
 pub enum EncoderError {
+    /// An generic unsupported format error, this error may have several causes. This error may
+    /// appear when trying to encode in a way currently not supported by this crate. Resort to the
+    /// error code itself to determine what exactly went wrong
     #[error("Unsupported wav format, attribute {attribute:?} must be one of {expected:?}, found {found:?}")]
     UnsupportedFormat {
+        /// Which field of the encoding failed
         attribute: &'static str,
+        /// The expected options
         expected: &'static [u32],
+        /// The provided option
         found: u32
     },
+    /// The specified encoding scheme is not supported by this crate. As of now, we only support
+    /// PCM encoding
     #[error("Unsupported wav encoding, module only supports PCM data")]
     UnsupportedEncoding,
+    /// A standard IO error, the cause lies within the underlying IO error
     #[error("Standard IO error")]
     IOError {
+        /// The actual error
         #[source]
         source: std::io::Error
     }

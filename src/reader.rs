@@ -6,42 +6,64 @@ use crate::header::*;
 
 use thiserror::Error;
 
+/// Errors related to the decoding of wav files
 #[derive(Error, Debug)]
 pub enum DecodeError {
+    /// An error accuring when trying to parse a chunk, the expected tag of the chunk is incorrect
     #[error("Invalid chunk tag, expected '{expected:?}', found '{found:?}'")]
     InvalidTag {
+        /// Which tag
         expected: &'static str,
         found: String,
     },
+    /// A certain attribute of a chunk is too small
     #[error("Invalid chunk attribute, attribute {attribute:?} must be greater than {expected:?}, found {found:?} instead")]
     InvalidChunkAttribute {
+        /// Which attribute
         attribute: &'static str,
+        /// Any value lower than or equal to this is invalid
         expected: u32,
+        /// The found option
         found: u32,
     },
+    /// A certain attribute of a chunk isn't found within the range
     #[error("Invalid chunk attribute, attribute {attribute:?} must be on of {expected:?}, found {found:?}")]
     InvalidChunkAttributeRange {
+        /// Which attribute
         attribute: &'static str,
+        /// The valid options
         expected: &'static [u32],
+        /// The found option
         found: u32,
     },
+    /// Whilst decoding an unsupported format option was encountered
     #[error("Unsupported wav-format, attribute {attribute} must be one of {expected:?}, found {found:?}")]
     UnsupportedWav {
+        /// Which attribute
         attribute: &'static str,
+        /// The valid options
         expected: &'static [u32],
+        /// The found option
         found: u32,
     },
+    /// Whilst decoding an unsupported encoding was encountered
     #[error("Unsupported wav encoding, module only supports PCM data")]
     UnsupportedEncoding,
     #[error("Failed to open file")]
+    /// A generic IO file failure, the underlying cause lies within the source
     FileOpen {
+        /// The source of the error
         #[source]
         source: std::io::Error,
     },
+    /// To savely convert from u32 to usize, a 32-bit system or greater is required
+    /// This error shouldn't appear in most desktop
     #[error("Unsupported system, please use a 32-bit system or higher")]
     UnsupportedSystem,
     #[error("Unable to read data")]
+    /// A generic IO read failure, the underlying cause lies within the source
     ReadFail {
+        /// The source of the error
         #[source]
         source: std::io::Error,
     },
